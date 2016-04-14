@@ -6,6 +6,7 @@
 * NOTE: This is customized to 
 *       - accept a custom 'options.containerTargetSelector' instead of the hardcoded "body"
 *       - accept a custom 'options.bottom', to allow for page footers as well
+*       - push will affect the left or right margins of the container target, not it's actual left property
 */
 (function ($) {
     // Private attributes and method
@@ -135,9 +136,11 @@
             $el.css(setting.position, "0px");
             if (setting.push) {
                 if (setting.position === "left") {
-                    $(setting.containerTargetSelector).css("left", sidePosition($el));
+                    $(setting.containerTargetSelector).css("margin-left", sidePosition($el));
+                    //$(setting.containerTargetSelector).css("left", sidePosition($el));
                 } else {
-                    $(setting.containerTargetSelector).css("left", "-" + sidePosition($el));
+                    $(setting.containerTargetSelector).css("margin-right", sidePosition($el));
+                    //$(setting.containerTargetSelector).css("left", "-" + sidePosition($el));
                 }
             }
             $el.data("slide-reveal", true);
@@ -159,7 +162,13 @@
 
             // hide the panel
             if (setting.push) {
-                $(setting.containerTargetSelector).css("left", "0px");
+                if (setting.position === "left") {
+                    $(setting.containerTargetSelector).css("margin-left", "0px");
+                } else {
+                    $(setting.containerTargetSelector).css("margin-right", "0px");
+                }
+
+                //$(setting.containerTargetSelector).css("left", "0px");
             }
             $el.css(setting.position, "-" + sidePosition($el));
             $el.data("slide-reveal", false);
