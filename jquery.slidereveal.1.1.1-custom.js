@@ -7,6 +7,7 @@
 *       - accept a custom 'options.containerTargetSelector' instead of the hardcoded "body"
 *       - accept a custom 'options.bottom', to allow for page footers as well
 *       - push will affect the left or right margins of the container target, not it's actual left property
+*       - added a setWidth method to adjust the drawer width, whether it's open or not
 */
 (function ($) {
     // Private attributes and method
@@ -193,6 +194,51 @@
             } else {
                 this.show(triggerEvents);
             }
+        },
+
+        // *** Custom function to set width
+        setWidth: function (triggerEvents) {
+            var $el = this.element;
+
+            this.setting.width = triggerEvents.width;
+
+            var setting = this.setting;
+            var $el = this.element;
+
+            if ($el.data('slide-reveal')) { // Slide reveal is open, move things around...
+                // Clone object to immediately determine new width
+                var $elClone = $el.clone();
+                $elClone.css('transition', ''); //remove animation to immediately compute new width
+                $elClone.css({
+                    width: setting.width,
+                });
+                var containerPosition = sidePosition($elClone);
+
+                // Adjust the actual width
+                $el.css({
+                    width: setting.width,
+                })
+
+                // slide the panel
+                if (setting.push) {
+                    if (setting.position === "left") {
+                        $(setting.containerTargetSelector).css("margin-left", containerPosition);
+                    } else {
+                        $(setting.containerTargetSelector).css("margin-right", containerPosition);
+                    }
+                }
+            } else { // Slide reveal is not open, simply adjust some values
+                // Remove animation so that width is immediately adjusted
+                var initialTransition = $el.css('transition');
+                $el.css('transition', '');
+                // Adjust the actual width and set offset
+                $el.css({
+                    width: setting.width,
+                });
+                $el.css(setting.position, "-" + sidePosition($el));
+                //  Reset animation
+                $el.css('transition', initialTransition);
+            }
         }
     });
 
@@ -208,8 +254,10 @@
                     slideReveal.hide(triggerEvents);
                 } else if (options === 'toggle') {
                     slideReveal.toggle(triggerEvents);
+                } else if (options === 'setWidth') {
+                    slideReveal.setWidth(triggerEvents);
                 }
-            });
+        });
         } else {
             this.each(function () {
                 if ($(this).data('slide-reveal-model')) {
